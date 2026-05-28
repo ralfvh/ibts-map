@@ -90,7 +90,38 @@ async function loadStations() {
     console.error("Error loading CSV:", err);
   }
 }
+// ------------------------------------------------------------
+// 3. ICES GRID OVERLAY
+// ------------------------------------------------------------
+const icesGridUrl = "https://raw.githubusercontent.com/ices-tools-dev/ices-grid/master/ices_areas.geojson";
 
+async function loadICESGrid() {
+  try {
+    const response = await fetch(icesGridUrl);
+    const data = await response.json();
+
+    L.geoJSON(data, {
+      style: function () {
+        return {
+          color: "#444",
+          weight: 1,
+          fill: false
+        };
+      },
+      onEachFeature: function (feature, layer) {
+        if (feature.properties && feature.properties.Name) {
+          layer.bindTooltip(feature.properties.Name);
+        }
+      }
+    }).addTo(map);
+
+  } catch (err) {
+    console.error("Error loading ICES grid:", err);
+  }
+}
+
+loadICESGrid();
+  
 // Initial load
 loadStations();
 
