@@ -53,6 +53,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+const stationLayer = L.layerGroup().addTo(map);
+
 // Marker color logic
 function statusColor(status) {
   switch (status.toLowerCase()) {
@@ -68,6 +70,7 @@ function statusColor(status) {
 // 2. LOAD CSV FROM SHAREPOINT
 // ------------------------------------------------------------
 async function loadStations() {
+  stationLayer.clearLayers()
   try {
     const response = await fetch(csvUrl + "&_=" + Date.now());
     const text = await response.text();
@@ -76,12 +79,7 @@ async function loadStations() {
     const header = rows[0];
     const data = rows.slice(1);
 
-    // Remove old markers
-    map.eachLayer(layer => {
-      if (layer instanceof L.CircleMarker) map.removeLayer(layer);
-    });
-
-    // Add markers
+     // Add markers
   data.forEach(row => {
   const station = row[0].trim();
   const lat = parseFloat(row[1]);
@@ -140,7 +138,7 @@ if (method.toLowerCase() === "gov") {
   });
 }
 
-marker.addTo(map);
+marker.addTo(stationLayer);
 
   marker.bindPopup(
     `<b>Station:</b> ${station}<br>
