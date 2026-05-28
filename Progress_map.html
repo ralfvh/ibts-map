@@ -62,11 +62,11 @@ async function loadStations() {
 
     // Add markers
     data.forEach(row => {
-      const station = row[0];
+      const station = row[0].trim();
       const lat = parseFloat(row[1]);
       const lon = parseFloat(row[2]);
-      const method = row[3];
-      const status = row[4];
+      const method = row[3].trim();
+      const status = row[4].trim();
 
       if (!lat || !lon) return;
 
