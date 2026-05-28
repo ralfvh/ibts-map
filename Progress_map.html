@@ -72,12 +72,49 @@ async function loadStations() {
 
   const color = statusColor(status);
 
-  const marker = L.circleMarker([lat, lon], {
+ let marker;
+
+if (method.toLowerCase() === "gov") {
+  // Circle (default)
+  marker = L.circleMarker([lat, lon], {
     radius: 8,
     color: color,
     fillColor: color,
     fillOpacity: 0.8
-  }).addTo(map);
+  });
+
+} else if (method.toLowerCase() === "jst") {
+  // Square (using divIcon)
+  marker = L.marker([lat, lon], {
+    icon: L.divIcon({
+      className: "",
+      html: `<div style="
+        width:14px;
+        height:14px;
+        background:${color};
+        border:2px solid ${color};
+        transform: rotate(0deg);
+      "></div>`
+    })
+  });
+
+} else {
+  // Triangle (fallback)
+  marker = L.marker([lat, lon], {
+    icon: L.divIcon({
+      className: "",
+      html: `<div style="
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 14px solid ${color};
+      "></div>`
+    })
+  });
+}
+
+marker.addTo(map);
 
   marker.bindPopup(
     `<b>Station:</b> ${station}<br>
