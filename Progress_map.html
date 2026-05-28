@@ -38,6 +38,7 @@ function statusColor(status) {
     case "done": return "green";
     case "in progress": return "orange";
     case "skipped": return "red";
+    case "pending": return "blue";
     default: return "gray";
   }
 }
@@ -47,7 +48,7 @@ function statusColor(status) {
 // ------------------------------------------------------------
 async function loadStations() {
   try {
-    const response = await fetch(csvUrl + "&_=" + Date.now());
+    const response = await fetch(csvUrl + "?_=" + Date.now());
     const text = await response.text();
 
     const rows = text.trim().split("\n").map(r => r.split(","));
