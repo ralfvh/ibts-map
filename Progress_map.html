@@ -77,10 +77,10 @@ async function loadStations() {
 if (method.toLowerCase() === "gov") {
   // Circle (default)
   marker = L.circleMarker([lat, lon], {
-    radius: 6,
+    radius: 5,
     color: color,
     fillColor: color,
-    fillOpacity: 0.8
+    fillOpacity: 0.1
   });
 
 } else if (method.toLowerCase() === "jst") {
