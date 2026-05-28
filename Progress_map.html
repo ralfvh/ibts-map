@@ -260,10 +260,54 @@ document.addEventListener("change", function (e) {
   
 });
 
+ async function loadTridens() {
+  const TRIDENS_MMSI = "244110000";
 
+  try {
+    const response = await fetch("https://api.openseamap.org/ais/getAIS.php?format=json");
+    const data = await response.json();
 
-// Auto-refresh every 20 seconds
-setInterval(loadStations, 20000);
+    const vessel = data.find(v => v.MMSI === TRIDENS_MMSI);
+
+    if (!vessel) return;
+
+    const lat = parseFloat(vessel.LAT);
+    const lon = parseFloat(vessel.LON);
+
+    if (!lat || !lon) return;
+
+    // Remove old marker
+    if (window.tridensMarker) {
+      map.removeLayer(window.tridensMarker);
+    }
+
+    // Add new marker
+    window.tridensMarker = L.marker([lat, lon], {
+      icon: L.icon({
+        iconUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Ship_font_awesome.svg",
+        iconSize: [32, 32]
+      })
+    }).addTo(map);
+
+    window.tridensMarker.bindPopup(`
+      <b>RV Tridens</b><br>
+      MMSI: ${TRIDENS_MMSI}<br>
+      Speed: ${vessel.SOG} kn<br>
+      Course: ${vessel.COG}°
+    `);
+
+  } catch (err) {
+    console.error("AIS error:", err);
+  }
+}
+
+// Refresh every 30 seconds
+setInterval(loadTridens, 30000);
+loadTridens();
+ 
+
+// Auto-refresh every 30 seconds
+setInterval(loadStations, 30000);
 </script>
 
 </body>
