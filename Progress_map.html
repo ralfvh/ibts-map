@@ -10,6 +10,15 @@
 
 <style>
   #map { height: 100vh; }
+
+  
+.filter-box {
+  background: white;
+  padding: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
 </style>
 </head>
 <body>
@@ -21,6 +30,18 @@
 // 1. CONFIGURATION
 // ------------------------------------------------------------
 
+
+let activeCountries = {
+  FR: true,
+  NL: true,
+  DK: true,
+  GE: true,
+  NO: true,
+  SC: true,
+  SW: true
+};
+
+  
 // Your SharePoint CSV link:
 const csvUrl =  "https://docs.google.com/spreadsheets/d/1RGcPPXybYzVNQCwyK2_uOaodrWjwalecxCsRLqBiuE8/export?format=csv";
    
@@ -67,7 +88,36 @@ async function loadStations() {
   const lon = parseFloat(row[2]);
   const method = row[3].trim();
   const status = row[4].trim();
+  const country = row[5].trim();
+   
+  const countryLower = county.toLowerCase().trim();
+  // Filter out unchecked methods
+  if (!activeCountries[countryLower]) return
+ 
 
+  const filterControl = L.control({ position: "bottomright" });
+
+filterControl.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-box");
+
+  div.innerHTML = `
+    <b>Country filter</b><br>
+    <label>
+      <input type="checkbox" id="filter-FR" checked> FR
+    </label><br>
+    <label>
+      <input type="checkbox" id="filter-NL" checked> NL
+    </label>
+  `;
+
+  return div;
+};
+
+filterControl.addTo(map);
+
+    
+
+    
   if (!lat || !lon) return;
 
   const color = statusColor(status);
@@ -160,6 +210,20 @@ drawICESGrid();
   
 // Initial load
 loadStations();
+
+  
+document.addEventListener("change", function (e) {
+  if (e.target.id === "filter-FR") {
+    activeCountries.FR = e.target.checked;
+    loadStations();
+  }
+
+  if (e.target.id === "filter-NL") {
+    activeCountries.NL = e.target.checked;
+    loadStations();
+  }
+});
+
 
 // Auto-refresh every 20 seconds
 setInterval(loadStations, 20000);
