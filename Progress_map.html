@@ -32,13 +32,13 @@
 
 
 let activeCountries = {
-  FR: true,
-  NL: true,
-  DK: true,
-  GE: true,
-  NO: true,
-  SC: true,
-  SW: true
+  fr: true,
+  nl: true,
+  dk: true,
+  ge: true,
+  no: true,
+  sc: true,
+  sw: true
 };
 
   
@@ -90,33 +90,9 @@ async function loadStations() {
   const status = row[4].trim();
   const country = row[5].trim();
    
-  const countryLower = county.toLowerCase().trim();
+  const countryLower = country.toLowerCase();
   // Filter out unchecked methods
-  if (!activeCountries[countryLower]) return
- 
-
-  const filterControl = L.control({ position: "bottomright" });
-
-filterControl.onAdd = function () {
-  const div = L.DomUtil.create("div", "filter-box");
-
-  div.innerHTML = `
-    <b>Country filter</b><br>
-    <label>
-      <input type="checkbox" id="filter-FR" checked> FR
-    </label><br>
-    <label>
-      <input type="checkbox" id="filter-NL" checked> NL
-    </label>
-  `;
-
-  return div;
-};
-
-filterControl.addTo(map);
-
-    
-
+  if (!activeCountries[countryLower]) return;
     
   if (!lat || !lon) return;
 
@@ -180,6 +156,26 @@ marker.addTo(map);
   }
 }
 
+const filterControl = L.control({ position: "bottomright" });
+
+filterControl.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-box");
+
+  div.innerHTML = `
+    <b>Country filter</b><br>
+    <label>
+      <input type="checkbox" id="filter-FR" checked> FR
+    </label><br>
+    <label>
+      <input type="checkbox" id="filter-NL" checked> NL
+    </label>
+  `;
+
+  return div;
+};
+
+filterControl.addTo(map);
+  
  
 function drawICESGrid() {
   const latStart = 48;
@@ -213,16 +209,44 @@ loadStations();
 
   
 document.addEventListener("change", function (e) {
-  if (e.target.id === "filter-FR") {
-    activeCountries.FR = e.target.checked;
+
+  if (e.target.id === "filter-fr") {
+    activeCountries.fr = e.target.checked;
     loadStations();
   }
 
-  if (e.target.id === "filter-NL") {
-    activeCountries.NL = e.target.checked;
+  if (e.target.id === "filter-nl") {
+    activeCountries.nl = e.target.checked;
     loadStations();
   }
+
+  if (e.target.id === "filter-dk") {
+    activeCountries.dk = e.target.checked;
+    loadStations();
+  }
+
+  if (e.target.id === "filter-sc") {
+    activeCountries.sc = e.target.checked;
+    loadStations();
+  }
+
+  if (e.target.id === "filter-no") {
+    activeCountries.no = e.target.checked;
+    loadStations();
+  }
+  
+  if (e.target.id === "filter-sw") {
+    activeCountries.sw = e.target.checked;
+    loadStations();
+  }
+
+  if (e.target.id === "filter-ge") {
+    activeCountries.ge = e.target.checked;
+    loadStations();
+  }
+  
 });
+
 
 
 // Auto-refresh every 20 seconds
