@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>North Sea Monitoring Progress Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  #map { height: 100vh; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+// ------------------------------------------------------------
+// 1. CONFIGURATION
+// ------------------------------------------------------------
+
+// Your SharePoint CSV link:
+const csvUrl =
+  "";
+
+// Map center (North Sea)
+const map = L.map('map').setView([56.5, 3.0], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 12,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Marker color logic
+function statusColor(status) {
+  switch (status.toLowerCase()) {
+    case "done": return "green";
+    case "in progress": return "orange";
+    case "skipped": return "red";
+    default: return "gray";
+  }
+}
+
+// ------------------------------------------------------------
+// 2. LOAD CSV FROM SHAREPOINT
+// ------------------------------------------------------------
+async function loadStations() {
+  try {
+    const response = await fetch(csvUrl + "&_=" + Date.now());
+    const text = await response.text();
+
+    const rows = text.trim().split("\n").map(r => r.split(","));
+    const header = rows[0];
+    const data = rows.slice(1);
+
+    // Remove old markers
+    map.eachLayer(layer => {
+      if (layer instanceof L.CircleMarker) map.removeLayer(layer);
+    });
+
+    // Add markers
+    data.forEach(row => {
+      const station = row[0];
+      const lat = parseFloat(row[1]);
+      const lon = parseFloat(row[2]);
+      const method = row[3];
+      const status = row[4];
+
+      if (!lat || !lon) return;
+
+      const color = statusColor(status);
+
+      const marker = L.circleMarker([lat, lon], {
+        radius: 8,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      marker.bindPopup(
+        `<b>Station:</b> ${station}<br>
+         <b>Method:</b> ${method}<br>
+         <b>Status:</b> ${status}`
+      );
+    });
+
+  } catch (err) {
+    console.error("Error loading CSV:", err);
+  }
+}
+
+// Initial load
+loadStations();
+
+// Auto-refresh every 20 seconds
+setInterval(loadStations, 20000);
+</script>
+
+</body>
+</html>
