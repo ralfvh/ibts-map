@@ -66,6 +66,9 @@ function statusColor(status) {
   }
 }
 
+window.vesselMarkers = {};
+window.vesselTracks = {};
+
 // ------------------------------------------------------------
 // 2. LOAD CSV FROM SHAREPOINT
 // ------------------------------------------------------------
@@ -261,8 +264,15 @@ document.addEventListener("change", function (e) {
 });
 
 function startAISStream() {
-  const TRIDENS_MMSI = "244033000";
-  const DANA_MMSI = "244767000";
+  const VESSELS = {
+  244033000: { name: "RV Tridens", color: "blue" },
+  234973000: { name: "RV Scotia", color: "red" },
+  265009000: { name: "RV Svea", color: "green" },
+  227297000: { name: "RV Thalassa", color: "purple" },
+  219384000: { name: "RV Dana", color: "orange" },
+  211215500: { name: "RV Walther Herwig", color: "black" },
+  257105000: { name: "G.O. Sars", color: "brown" }
+};
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
@@ -272,96 +282,86 @@ function startAISStream() {
     const subscriptionMessage = {
       APIKey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",
       BoundingBoxes: [[[48, -5], [62, 12]]],
-      FiltersShipMMSI: ["244033000", "244767000"]
+      FiltersShipMMSI: Object.keys(VESSELS).map(Number)
     };
 
     socket.send(JSON.stringify(subscriptionMessage));
   };
 
-  socket.onmessage = async (event) => {
-    try {
-      let text;
+socket.onmessage = async (event) => {
+  try {
+    let text;
 
-      // Handle Blob vs string
-      if (typeof event.data === "string") {
-        text = event.data;
-      } else {
-        text = await event.data.text();
-      }
-
-      const msg = JSON.parse(text);
-
-      console.log("AIS RAW:", msg);
-
-      // Safely extract message
-      if (!msg || !msg.Message) return;
-
-      const p =
-        msg.Message.PositionReport ||
-        msg.Message.ExtendedClassBPositionReport ||
-        msg.Message.StandardClassBPositionReport;
-
-      if (!p) return;
-
-      const lat = p.Latitude;
-      const lon = p.Longitude;
-      const sog = p.Sog;
-      const cog = p.Cog;
-
-      if (lat == null || lon == null) return;
-
-      console.log("AIS POSITION:", lat, lon);
-
-      // Create storage for vessels
-if (!window.vesselMarkers) {
-  window.vesselMarkers = {};
-}
-
-// Identify vessel
-const mmsi = msg.MetaData?.MMSI;
-
-// Choose icon per vessel
-let iconUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Ship_font_awesome.svg";
-
-if (mmsi === 244033000) {
-  iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/blue.png";   // Tridens
-}
-if (mmsi === 244767000) {
-  iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/red.png";    // Dana
-}
-
-// Remove old marker for THIS vessel only
-if (window.vesselMarkers[mmsi]) {
-  map.removeLayer(window.vesselMarkers[mmsi]);
-}
-
-// Add new marker
-window.vesselMarkers[mmsi] = L.marker([lat, lon], {
-  icon: L.icon({
-    iconUrl: iconUrl,
-    iconSize: [32, 32]
-  })
-}).addTo(map);
-
-// Label based on MMSI
-let vesselName = "Unknown vessel";
-if (mmsi === 244033000) vesselName = "RV Tridens";
-if (mmsi === 244767000) vesselName = "RV Isis";
-
-// Popup
-window.vesselMarkers[mmsi].bindPopup(`
-  <b>${vesselName} (Live AIS)</b><br>
-  MMSI: ${mmsi}<br>
-  Lat: ${lat}<br>
-  Lon: ${lon}<br>
-  Speed: ${sog ?? "n/a"} kn<br>
-  Course: ${cog ?? "n/a"}°
-`);
-
-   } catch (err) {
-      console.error("AIS parse error:", err);
+    if (typeof event.data === "string") {
+      text = event.data;
+    } else {
+      text = await event.data.text();
     }
-  };
+
+    const msg = JSON.parse(text);
+
+    const p =
+      msg.Message?.PositionReport ||
+      msg.Message?.ExtendedClassBPositionReport ||
+      msg.Message?.StandardClassBPositionReport;
+
+    if (!p) return;
+
+    const lat = p.Latitude;
+    const lon = p.Longitude;
+    const mmsi = msg.MetaData?.MMSI;
+
+    if (lat == null || lon == null || !VESSELS[mmsi]) return;
+
+    const vessel = VESSELS[mmsi];
+
+    // Update or create marker (NO removal = smooth movement)
+    if (!window.vesselMarkers[mmsi]) {
+      window.vesselMarkers[mmsi] = L.circleMarker([lat, lon], {
+        radius: 6,
+        color: vessel.color,
+        fillColor: vessel.color,
+        fillOpacity: 0.8
+      }).addTo(map);
+    } else {
+      window.vesselMarkers[mmsi].setLatLng([lat, lon]);
+    }
+
+    // Update popup
+    window.vesselMarkers[mmsi].bindPopup(`
+      <b>${vessel.name}</b><br>
+      MMSI: ${mmsi}<br>
+      Lat: ${lat}<br>
+      Lon: ${lon}
+    `);
+
+    // Track storage
+    if (!window.vesselTracks[mmsi]) {
+      window.vesselTracks[mmsi] = [];
+    }
+
+    window.vesselTracks[mmsi].push([lat, lon]);
+
+    // Keep last ~24h (limit points)
+    if (window.vesselTracks[mmsi].length > 2000) {
+      window.vesselTracks[mmsi].shift();
+    }
+
+    // Draw/update track line
+    if (window.vesselTracks[mmsi].line) {
+      map.removeLayer(window.vesselTracks[mmsi].line);
+    }
+
+    window.vesselTracks[mmsi].line = L.polyline(
+      window.vesselTracks[mmsi],
+      { color: vessel.color, weight: 2 }
+    ).addTo(map);
+
+  } catch (e) {
+    console.error("AIS error:", e);
+  }
+};
+
 
   socket.onerror = (err) => {
     console.error("AISstream error:", err);
