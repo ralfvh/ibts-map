@@ -262,7 +262,7 @@ document.addEventListener("change", function (e) {
 
 function startAISStream() {
   const TRIDENS_MMSI = "244033000";
-  const SCOTIA_MMSI = "234973000";
+  const SCOTIA_MMSI = "219384000";
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
@@ -272,7 +272,7 @@ function startAISStream() {
     const subscriptionMessage = {
       APIKey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",
       BoundingBoxes: [[[48, -5], [62, 12]]],
-      FiltersShipMMSI: ["244033000", "234973000"]
+      FiltersShipMMSI: ["244033000", "219384000"]
     };
 
     socket.send(JSON.stringify(subscriptionMessage));
