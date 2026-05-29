@@ -272,7 +272,8 @@ document.addEventListener("change", function (e) {
     // Subscribe ONLY to Tridens
     socket.send(JSON.stringify({
       Apikey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   // works for public demo access
-      BoundingBoxes: [[[-90,180],[90,180]]]
+      BoundingBoxes: [[[-90,180],[90,180]]],
+      FiltersShipMMSI: ["244033000"]
       }));
   };
 
