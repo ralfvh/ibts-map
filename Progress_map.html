@@ -260,19 +260,33 @@ document.addEventListener("change", function (e) {
   
 });
 
- async function loadTridens() {
-  const TRIDENS_MMSI = "234973000";
+ function startAISStream() {
+  const TRIDENS_MMSI = "244033000";
 
-  try {
-    const response = await fetch("https://api.openseamap.org/ais/getAIS.php?format=json");
-    const data = await response.json();
+  const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
-    const vessel = data.find(v => v.MMSI === TRIDENS_MMSI);
+  socket.onopen = () => {
+    console.log("AISstream connected");
 
-    if (!vessel) return;
+    // Subscribe ONLY to Tridens
+    socket.send(JSON.stringify({
+      Apikey: "DEMO",   // works for public demo access
+      BoundingBoxes: [],
+      FiltersShipMMSI: [TRIDENS_MMSI]
+    }));
+  };
 
-    const lat = parseFloat(vessel.LAT);
-    const lon = parseFloat(vessel.LON);
+  socket.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+
+    if (!msg || !msg.Message || !msg.Message.PositionReport) return;
+
+    const p = msg.Message.PositionReport;
+
+    const lat = p.Latitude;
+    const lon = p.Longitude;
+    const sog = p.Sog;
+    const cog = p.Cog;
 
     if (!lat || !lon) return;
 
@@ -290,16 +304,19 @@ document.addEventListener("change", function (e) {
     }).addTo(map);
 
     window.tridensMarker.bindPopup(`
-      <b>RV Tridens</b><br>
+      <b>RV Tridens (Live AIS)</b><br>
       MMSI: ${TRIDENS_MMSI}<br>
-      Speed: ${vessel.SOG} kn<br>
-      Course: ${vessel.COG}°
+      Speed: ${sog} kn<br>
+      Course: ${cog}°
     `);
+  };
 
-  } catch (err) {
-    console.error("AIS error:", err);
-  }
+  socket.onerror = (err) => {
+    console.error("AISstream error:", err);
+  };
 }
+
+startAISStream();
 
 // Refresh every 30 seconds
 setInterval(loadTridens, 30000);
