@@ -208,27 +208,7 @@ filterControl.onAdd = function () {
 };
 
 filterControl.addTo(map);
-  const vesselControl = L.control({ position: "topright" });
-
-vesselControl.onAdd = function () {
-  const div = L.DomUtil.create("div", "filter-box");
-
-  div.innerHTML = "<b>Vessels</b><br>";
-
-  Object.keys(VESSELS).forEach(mmsi => {
-    div.innerHTML += `
-      <label>
-        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
-        ${VESSELS[mmsi].name}
-      </label><br>
-    `;
-  });
-
-  return div;
-};
-
-vesselControl.addTo(map);
- 
+  
 function drawICESGrid() {
   const latStart = 48;
   const latEnd = 62;
@@ -309,6 +289,27 @@ function startAISStream() {
   211215500: { name: "RV Walther Herwig", color: "black" },
   257105000: { name: "G.O. Sars", color: "brown" }
 };
+
+  const vesselControl = L.control({ position: "topright" });
+
+vesselControl.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-box");
+
+  div.innerHTML = "<b>Vessels</b><br>";
+
+  Object.keys(VESSELS).forEach(mmsi => {
+    div.innerHTML += `
+      <label>
+        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
+        ${VESSELS[mmsi].name}
+      </label><br>
+    `;
+  });
+
+  return div;
+};
+
+vesselControl.addTo(map);
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
