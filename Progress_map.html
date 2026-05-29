@@ -282,6 +282,7 @@ document.addEventListener("change", function (e) {
     const msg = JSON.parse(event.data);
     console.log(msg);
     console.log("AIS message received");
+    console.log("AIS DATA:", event.data)
     
     if (!msg || !msg.Message || !msg.Message.PositionReport) return;
 
