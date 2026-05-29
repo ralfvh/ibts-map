@@ -262,7 +262,7 @@ document.addEventListener("change", function (e) {
 
 function startAISStream() {
   const TRIDENS_MMSI = "244033000";
-  const DANA_MMSI = "219384000";
+  const DANA_MMSI = "244767000";
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
@@ -272,7 +272,7 @@ function startAISStream() {
     const subscriptionMessage = {
       APIKey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",
       BoundingBoxes: [[[48, -5], [62, 12]]],
-      FiltersShipMMSI: ["244033000", "219384000"]
+      FiltersShipMMSI: ["244033000", "244767000"]
     };
 
     socket.send(JSON.stringify(subscriptionMessage));
@@ -326,7 +326,7 @@ let iconUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Ship_font_awe
 if (mmsi === 244033000) {
   iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/blue.png";   // Tridens
 }
-if (mmsi === 219384000) {
+if (mmsi === 244767000) {
   iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/red.png";    // Dana
 }
 
@@ -346,7 +346,7 @@ window.vesselMarkers[mmsi] = L.marker([lat, lon], {
 // Label based on MMSI
 let vesselName = "Unknown vessel";
 if (mmsi === 244033000) vesselName = "RV Tridens";
-if (mmsi === 219384000) vesselName = "RV Dana";
+if (mmsi === 244767000) vesselName = "RV Isis";
 
 // Popup
 window.vesselMarkers[mmsi].bindPopup(`
