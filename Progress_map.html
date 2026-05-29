@@ -270,16 +270,18 @@ document.addEventListener("change", function (e) {
     console.log("AISstream connected");
 
     // Subscribe ONLY to Tridens
-    socket.send(JSON.stringify({
-      Apikey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   // works for public demo access
+    let subscriptionMessage={
+      Apikey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   
       BoundingBoxes: [[[-90,180],[90,180]]],
-      FiltersShipMMSI: ["244033000"]
-      }));
+      FiltersShipMMSI: [TRIDENS_MMSI]
+      }
+      socket.send(JSON.stringify(subscriptionMessage));
   };
 
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
-
+    console.log(msg);
+    
     if (!msg || !msg.Message || !msg.Message.PositionReport) return;
 
     const p = msg.Message.PositionReport;
