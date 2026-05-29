@@ -262,7 +262,8 @@ document.addEventListener("change", function (e) {
 
  function startAISStream() {
   const TRIDENS_MMSI = "244033000";
-
+  const SCOTIA_MMSI= "234973000";
+   
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
   socket.onopen = () => {
@@ -271,8 +272,8 @@ document.addEventListener("change", function (e) {
     // Subscribe ONLY to Tridens
     socket.send(JSON.stringify({
       Apikey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   // works for public demo access
-      BoundingBoxes: [],
-      FiltersShipMMSI: [TRIDENS_MMSI]
+      BoundingBoxes: [[[-90,180],[90,180]]],
+      FiltersShipMMSI: [TRIDENS_MMSI, SCOTIA_MMSI]
     }));
   };
 
