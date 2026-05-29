@@ -273,7 +273,7 @@ document.addEventListener("change", function (e) {
     let subscriptionMessage={
       APIkey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   
       BoundingBoxes: [[[-44,-7],[68,13]]],
-      FiltersShipMMSI: [TRIDENS_MMSI]
+      FiltersShipMMSI: [TRIDENS_MMSI, SCOTIA_MMSI]
       }
       socket.send(JSON.stringify(subscriptionMessage));
   };
