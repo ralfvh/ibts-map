@@ -208,7 +208,26 @@ filterControl.onAdd = function () {
 };
 
 filterControl.addTo(map);
-  
+  const vesselControl = L.control({ position: "topright" });
+
+vesselControl.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-box");
+
+  div.innerHTML = "<b>Vessels</b><br>";
+
+  Object.keys(VESSELS).forEach(mmsi => {
+    div.innerHTML += `
+      <label>
+        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
+        ${VESSELS[mmsi].name}
+      </label><br>
+    `;
+  });
+
+  return div;
+};
+
+vesselControl.addTo(map);
  
 function drawICESGrid() {
   const latStart = 48;
