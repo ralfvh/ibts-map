@@ -260,69 +260,115 @@ document.addEventListener("change", function (e) {
   
 });
 
- function startAISStream() {
+function startAISStream() {
   const TRIDENS_MMSI = 244033000;
-  const SCOTIA_MMSI= "234973000";
-   
+  const SCOTIA_MMSI = 234973000;
+
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
   socket.onopen = () => {
     console.log("AISstream connected");
 
-    // Subscribe ONLY to Tridens
-    let subscriptionMessage={
-      APIkey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   
-      BoundingBoxes: [[[-44,-7],[68,13]]],
+    const subscriptionMessage = {
+      APIKey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",
+      BoundingBoxes: [[[48, -5], [62, 12]]],
       FiltersShipMMSI: [TRIDENS_MMSI, SCOTIA_MMSI]
-      }
-      socket.send(JSON.stringify(subscriptionMessage));
+    };
+
+    socket.send(JSON.stringify(subscriptionMessage));
   };
 
-  socket.onmessage = (event) => {
-    const msg = JSON.parse(event.data);
-    console.log(msg);
-    console.log("AIS message received");
-    console.log("AIS DATA:", event.data)
-    
-    if (!msg || !msg.Message || !msg.Message.PositionReport) return;
+  socket.onmessage = async (event) => {
+    try {
+      let text;
 
-    const p = msg.Message.PositionReport
-       || msg.Message.ExtendedClassBPositionReport 
-       || msg.Message.StandardClassBPositionReport;
+      // ✅ Handle Blob vs string
+      if (typeof event.data === "string") {
+        text = event.data;
+      } else {
+        text = await event.data.text();
+      }
 
-    if (!p) return;
+      const msg = JSON.parse(text);
 
+      console.log("AIS RAW:", msg);
 
-    const lat = p.Latitude;
-    const lon = p.Longitude;
-    const sog = p.Sog;
-    const cog = p.Cog;
+      // ✅ Safely extract message
+      if (!msg || !msg.Message) return;
 
-    if (lat == null || lon == null) return;
+      const p =
+        msg.Message.PositionReport ||
+        msg.Message.ExtendedClassBPositionReport ||
+        msg.Message.StandardClassBPositionReport;
 
-    // Remove old marker
-    if (window.tridensMarker) {
-      map.removeLayer(window.tridensMarker);
+      if (!p) return;
+
+      const lat = p.Latitude;
+      const lon = p.Longitude;
+      const sog = p.Sog;
+      const cog = p.Cog;
+
+      if (lat == null || lon == null) return;
+
+      console.log("AIS POSITION:", lat, lon);
+
+      // Create storage for vessels
+if (!window.vesselMarkers) {
+  window.vesselMarkers = {};
+}
+
+// Identify vessel
+const mmsi = msg.MetaData?.MMSI;
+
+// Choose icon per vessel
+let iconUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Ship_font_awesome.svg";
+
+if (mmsi === 244033000) {
+  iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/blue.png";   // Tridens
+}
+if (mmsi === 234973000) {
+  iconUrl = "https://maps.gstatic.com/mapfiles/ms2/micons/red.png";    // Scotia
+}
+
+// Remove old marker for THIS vessel only
+if (window.vesselMarkers[mmsi]) {
+  map.removeLayer(window.vesselMarkers[mmsi]);
+}
+
+// Add new marker
+window.vesselMarkers[mmsi] = L.marker([lat, lon], {
+  icon: L.icon({
+    iconUrl: iconUrl,
+    iconSize: [32, 32]
+  })
+}).addTo(map);
+
+// Label based on MMSI
+let vesselName = "Unknown vessel";
+if (mmsi === 244033000) vesselName = "RV Tridens";
+if (mmsi === 234973000) vesselName = "RV Scotia";
+
+// Popup
+window.vesselMarkers[mmsi].bindPopup(`
+  <b>${vesselName} (Live AIS)</b><br>
+  MMSI: ${mmsi}<br>
+  Lat: ${lat}<br>
+  Lon: ${lon}<br>
+  Speed: ${sog ?? "n/a"} kn<br>
+  Course: ${cog ?? "n/a"}°
+`);
+
+   } catch (err) {
+      console.error("AIS parse error:", err);
     }
-
-    // Add new marker
-    window.tridensMarker = L.marker([lat, lon], {
-      icon: L.icon({
-        iconUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Ship_font_awesome.svg",
-        iconSize: [32, 32]
-      })
-    }).addTo(map);
-
-    window.tridensMarker.bindPopup(`
-      <b>RV Tridens (Live AIS)</b><br>
-      MMSI: ${TRIDENS_MMSI}<br>
-      Speed: ${sog} kn<br>
-      Course: ${cog}°
-    `);
   };
 
   socket.onerror = (err) => {
     console.error("AISstream error:", err);
+  };
+
+  socket.onclose = () => {
+    console.warn("AIS connection closed");
   };
 }
 
