@@ -311,6 +311,35 @@ vesselControl.onAdd = function () {
 
 vesselControl.addTo(map);
 
+window.visibleVessels = {};
+Object.keys(VESSELS).forEach(m => window.visibleVessels[m] = true);
+
+document.addEventListener("change", function (e) {
+  if (e.target.classList.contains("vessel-toggle")) {
+    const mmsi = e.target.value;
+    window.visibleVessels[mmsi] = e.target.checked;
+
+    // Show/hide marker
+    if (window.vesselMarkers[mmsi]) {
+      if (e.target.checked) {
+        map.addLayer(window.vesselMarkers[mmsi]);
+      } else {
+        map.removeLayer(window.vesselMarkers[mmsi]);
+      }
+    }
+
+    // Show/hide track
+    if (window.vesselTracks[mmsi]?.line) {
+      if (e.target.checked) {
+        map.addLayer(window.vesselTracks[mmsi].line);
+      } else {
+        map.removeLayer(window.vesselTracks[mmsi].line);
+      }
+    }
+  }
+});
+
+  
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
   socket.onopen = () => {
@@ -394,6 +423,8 @@ if (!window.vesselMarkers[mmsi]) {
       window.vesselTracks[mmsi],
       { color: vessel.color, weight: 2 }
     ).addTo(map);
+
+    if (!window.visibleVessels[mmsi]) return;
 
   } catch (e) {
     console.error("AIS error:", e);
