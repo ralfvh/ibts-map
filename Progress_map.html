@@ -344,11 +344,7 @@ if (!window.vesselMarkers[mmsi]) {
 } else {
   window.vesselMarkers[mmsi].setLatLng([lat, lon]);
 }
-    } else {
-      window.vesselMarkers[mmsi].setLatLng([lat, lon]);
-    }
-
-
+    
     // Update popup
     window.vesselMarkers[mmsi].bindPopup(`
       <b>${vessel.name}</b><br>
