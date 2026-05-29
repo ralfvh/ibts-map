@@ -281,6 +281,7 @@ document.addEventListener("change", function (e) {
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
     console.log(msg);
+    console.log("AIS message received");
     
     if (!msg || !msg.Message || !msg.Message.PositionReport) return;
 
