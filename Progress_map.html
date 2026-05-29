@@ -265,13 +265,13 @@ document.addEventListener("change", function (e) {
 
 function startAISStream() {
   const VESSELS = {
-  244033000: { name: "RV Tridens", color: "blue" },
-  234973000: { name: "RV Scotia", color: "red" },
-  265009000: { name: "RV Svea", color: "green" },
-  227297000: { name: "RV Thalassa", color: "purple" },
-  219384000: { name: "RV Dana", color: "orange" },
-  211215500: { name: "RV Walther Herwig", color: "black" },
-  257105000: { name: "G.O. Sars", color: "brown" }
+  "244033000": { name: "RV Tridens", color: "blue" },
+  "234973000": { name: "RV Scotia", color: "red" },
+  "265009000": { name: "RV Svea", color: "green" },
+  "227297000": { name: "RV Thalassa", color: "purple" },
+  "219384000": { name: "RV Dana", color: "orange" },
+  "211215500": { name: "RV Walther Herwig", color: "black" },
+  "257105000": { name: "G.O. Sars", color: "brown" }
 };
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
