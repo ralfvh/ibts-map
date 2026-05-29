@@ -316,30 +316,17 @@ socket.onmessage = async (event) => {
     const vessel = VESSELS[mmsi];
 
     // Update or create marker (NO removal = smooth movement)
-    if (!window.vesselMarkers[mmsi]) {
+if (!window.vesselMarkers[mmsi]) {
       window.vesselMarkers[mmsi] = L.circleMarker([lat, lon], {
-function createBoatIcon(color) {
-  return L.divIcon({
-    className: "",
-    html: `
-      <div style="
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 16px solid ${color};
-        transform: rotate(0deg);
-      "></div>
-    `,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
-  });
-}
-
+        radius: 6,
+        color: vessel.color,
+        fillColor: vessel.color,
+        fillOpacity: 0.8
       }).addTo(map);
     } else {
       window.vesselMarkers[mmsi].setLatLng([lat, lon]);
     }
+
 
     // Update popup
     window.vesselMarkers[mmsi].bindPopup(`
