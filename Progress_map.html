@@ -261,7 +261,7 @@ document.addEventListener("change", function (e) {
 });
 
  function startAISStream() {
-  const TRIDENS_MMSI = "244033000";
+  const TRIDENS_MMSI = 244033000;
   const SCOTIA_MMSI= "234973000";
    
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
@@ -271,8 +271,8 @@ document.addEventListener("change", function (e) {
 
     // Subscribe ONLY to Tridens
     let subscriptionMessage={
-      Apikey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   
-      BoundingBoxes: [[[-90,180],[90,180]]],
+      APIkey: "d50b5a4d186f9c7fda0a611b197f9840c368347c",   
+      BoundingBoxes: [[[-44,-7],[68,13]]],
       FiltersShipMMSI: [TRIDENS_MMSI]
       }
       socket.send(JSON.stringify(subscriptionMessage));
@@ -284,14 +284,19 @@ document.addEventListener("change", function (e) {
     
     if (!msg || !msg.Message || !msg.Message.PositionReport) return;
 
-    const p = msg.Message.PositionReport;
+    const p = msg.Message.PositionReport
+       || msg.Message.ExtendedClassBPositionReport 
+       || msg.Message.StandardClassBPositionReport;
+
+    if (!p) return;
+
 
     const lat = p.Latitude;
     const lon = p.Longitude;
     const sog = p.Sog;
     const cog = p.Cog;
 
-    if (!lat || !lon) return;
+    if (lat == null || lon == null) return;
 
     // Remove old marker
     if (window.tridensMarker) {
