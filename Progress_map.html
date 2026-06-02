@@ -107,6 +107,8 @@ async function loadStations() {
   const method = row[3].trim();
   const status = row[4].trim();
   const country = row[5].trim();
+  const Lat1= row[8].trim();
+  const Lon1= row[9].trim();
    
   const countryLower = country.toLowerCase();
   // Filter out unchecked methods
@@ -164,8 +166,8 @@ marker.addTo(stationLayer);
     `<b>Station:</b> ${station}<br>
      <b>Method:</b> ${method}<br>
      <b>Status:</b> ${status}<br>
-     <b>Lon:</b> ${lon}<br>
-     <b>Lat:</b> ${lat}<br>`
+     <b>Lon:</b> ${lon}, ${lon1}<br>
+     <b>Lat:</b> ${lat}, ${lat1}<br>`
   );
 });
 
