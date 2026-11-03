@@ -207,8 +207,9 @@ const filterControl = L.control({ position: "bottomright" });
 filterControl.onAdd = function () {
   const div = L.DomUtil.create("div", "filter-box");
 
-  div.innerHTML = `
-    <b>Country filter</b><br>
+div.innerHTML = `
+<div class="filter-title">🌍 Countries</div>
+<div class="filter-content">
     <label>
       <input type="checkbox" id="filter-fr" checked> fr
     </label><br>
