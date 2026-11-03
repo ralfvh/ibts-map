@@ -142,7 +142,7 @@ async function loadStations() {
   // Filter out unchecked methods
   if (!activeCountries[countryLower]) return;
     
-  if (!lat || !lon) return;
+  if (lat == null || lon == null) return;
 
   const color = statusColor(status);
 
@@ -475,11 +475,6 @@ if (!window.vesselTracks[mmsi].line) {
   );
 
 }
-
-    window.vesselTracks[mmsi].line = L.polyline(
-      window.vesselTracks[mmsi],
-      { color: vessel.color, weight: 2 }
-    ).addTo(map);
 
     if (!window.visibleVessels[mmsi]) return;
 
