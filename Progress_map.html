@@ -9,20 +9,21 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-  #map { height: 100vh; }
+ #map {
+  height: 100vh;
+}
 
-  
 .filter-box {
   background: white;
   padding: 8px;
   border: 1px solid #ccc;
-  font-size: 14px;
   max-width: 220px;
 }
 
 .filter-title {
-  font-weight: bold;
   cursor: pointer;
+  font-weight: bold;
+  user-select: none;
 }
 
 .filter-content {
@@ -31,15 +32,20 @@
 
 @media (max-width: 768px) {
 
+  .filter-box {
+    max-width: 160px;
+    font-size: 12px;
+  }
+
   .filter-content {
-    display: none !important;
+    display: none;
   }
 
   .filter-box.expanded .filter-content {
-    display: block !important;
+    display: block;
   }
-
 }
+
 
 </style>
 </head>
