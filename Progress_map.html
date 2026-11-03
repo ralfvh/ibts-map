@@ -324,7 +324,10 @@ function startAISStream() {
 vesselControl.onAdd = function () {
   const div = L.DomUtil.create("div", "filter-box");
 
-  div.innerHTML = "<b>Vessels</b><br>";
+  div.innerHTML = `
+  <div class="filter-title">🚢 Vessels</div>
+  <div class="filter-content">
+  `;
 
   Object.keys(VESSELS).forEach(mmsi => {
     div.innerHTML += `
@@ -334,7 +337,7 @@ vesselControl.onAdd = function () {
       </label><br>
     `;
   });
-
+  div.innerHTML += `</div>`;
   return div;
 };
 
