@@ -447,9 +447,23 @@ if (!window.vesselMarkers[mmsi]) {
     }
 
     // Draw/update track line
-    if (window.vesselTracks[mmsi].line) {
-      map.removeLayer(window.vesselTracks[mmsi].line);
+if (!window.vesselTracks[mmsi].line) {
+
+  window.vesselTracks[mmsi].line = L.polyline(
+    window.vesselTracks[mmsi],
+    {
+      color: vessel.color,
+      weight: 2
     }
+  ).addTo(map);
+
+} else {
+
+  window.vesselTracks[mmsi].line.setLatLngs(
+    window.vesselTracks[mmsi]
+  );
+
+}
 
     window.vesselTracks[mmsi].line = L.polyline(
       window.vesselTracks[mmsi],
@@ -473,6 +487,18 @@ if (!window.vesselMarkers[mmsi]) {
   };
 }
 
+window.addEventListener("load", () => {
+
+  if (window.innerWidth > 768) {
+
+    document.querySelectorAll(".filter-box").forEach(box => {
+      box.classList.add("expanded");
+    });
+
+  }
+
+});
+  
 startAISStream();
 
 // Auto-refresh every 40 seconds
