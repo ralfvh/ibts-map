@@ -17,6 +17,32 @@
   padding: 8px;
   border: 1px solid #ccc;
   font-size: 14px;
+  max-width: 220px;
+}
+
+.filter-title {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.filter-content {
+  display: block;
+}
+
+@media (max-width: 768px) {
+
+  .filter-box {
+    font-size: 12px;
+    max-width: 140px;
+  }
+
+  .filter-content {
+    display: none;
+  }
+
+  .filter-box.expanded .filter-content {
+    display: block;
+  }
 }
 
 </style>
