@@ -51,6 +51,39 @@ L.tileLayer(
   }
 ).addTo(map);
 
+const fishControl = L.control({
+  position: "topleft"
+});
+
+fishControl.onAdd = function () {
+
+  const div = L.DomUtil.create("div");
+
+  div.innerHTML = `
+    <a
+      href="https://ralfvh.github.io/ibts-map/Progress_map.html"
+      target="_blank"
+      style="
+        background:white;
+        padding:8px 12px;
+        border:1px solid #999;
+        border-radius:4px;
+        text-decoration:none;
+        color:black;
+        font-weight:bold;
+        display:block;
+      ">
+      🐟 Fish
+    </a>
+  `;
+
+  L.DomEvent.disableClickPropagation(div);
+
+  return div;
+};
+
+fishControl.addTo(map);
+
 function drawICESGrid() {
 
   const latStart = 48;
