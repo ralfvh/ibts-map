@@ -19,18 +19,6 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 const valueLayer = L.layerGroup().addTo(map);
 
-function getFontSize() {
-
-  const zoom = map.getZoom();
-
-  if (zoom <= 5) return 8;
-  if (zoom <= 6) return 10;
-  if (zoom <= 7) return 12;
-  if (zoom <= 8) return 14;
-
-  return 16;
-}
-
 .value-label {
     font-size: 14px;
     font-weight: bold;
@@ -56,6 +44,18 @@ const csvUrl =
 const map = L.map('map', {
     zoomControl: false
 }).setView([56.5, 3.0], 6);
+
+function getFontSize() {
+
+  const zoom = map.getZoom();
+
+  if (zoom <= 5) return 8;
+  if (zoom <= 6) return 10;
+  if (zoom <= 7) return 12;
+  if (zoom <= 8) return 14;
+
+  return 16;
+}
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -213,24 +213,20 @@ const textColor =
 L.marker(
   [centre.lat, centre.lon],
   {
-    icon: L.divIcon(...)
-  }
-).addTo(valueLayer);
-
-html: `
-  <span style="
-    color:${textColor};
-    font-weight:bold;
-    font-size:${getFontSize()}px;
-  ">
-    ${value}
-  </span>
-`
+    icon: L.divIcon({
+      className: "value-label",
+      html: `
+        <span style="
+          color:${textColor};
+          font-weight:bold;
+          font-size:${getFontSize()}px;
+        ">
+          ${value}
+        </span>
+      `
     })
   }
-).addTo(map);
-
-});
+).addTo(valueLayer);
 
 
   } catch(err) {
@@ -240,11 +236,11 @@ html: `
   }
 
 }
+loadICESValues();
+    
 map.on("zoomend", () => {
 
   valueLayer.clearLayers();
-
-  loadICESValues();
 
 });
 
