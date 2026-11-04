@@ -88,15 +88,15 @@ function getRectangleCentre(rectangle) {
 
   if (!match) return null;
 
-  const row = parseInt(match[1]);   // 37
-  const col = match[2];             // F
-  const quad = parseInt(match[3]);  // 3
+  const row = parseInt(match[1]);
+  const letter = match[2];
+  const quadrant = parseInt(match[3]);
 
-  // Latitude centre
+  // Latitude
   const lat =
-      36 + (0.5 * row) - 0.25;
+    36 + (0.5 * row) - 0.25;
 
-// Longitude lookup
+  // Longitude lookup
   const lonBases = {
     A: -40,
     B: -36,
@@ -115,7 +115,6 @@ function getRectangleCentre(rectangle) {
 
   const lon =
     baseLon + quadrant + 0.5;
-      
 
   return {
     lat: lat,
