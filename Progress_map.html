@@ -244,6 +244,14 @@ div.innerHTML = `
 </div>
 `;
 
+ div.querySelector(".filter-title")
+  .addEventListener("click", function(evt) {
+
+    evt.stopPropagation();
+
+    div.classList.toggle("expanded");
+
+});
   return div;
 };
 
@@ -349,6 +357,16 @@ vesselControl.onAdd = function () {
     `;
   });
   div.innerHTML += `</div>`;
+
+ div.querySelector(".filter-title")
+  .addEventListener("click", function(evt) {
+
+    evt.stopPropagation();
+
+    div.classList.toggle("expanded");
+
+});
+
   return div;
 };
 
@@ -492,19 +510,6 @@ if (!window.vesselTracks[mmsi].line) {
     console.warn("AIS connection closed");
   };
 }
-
-document.addEventListener("click", function(e) {
-
-  if (e.target.classList.contains("filter-title")) {
-
-    const box = e.target.closest(".filter-box");
-
-    if (box) {
-      box.classList.toggle("expanded");
-    }
-  }
-
-});
 
 window.addEventListener("load", () => {
 
