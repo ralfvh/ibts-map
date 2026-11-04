@@ -153,9 +153,10 @@ async function loadStations() {
   const method = row[3].trim();
   const status = row[4].trim();
   const country = row[5].trim();
+  const ICES = row[6].trim();
   const lat1= row[8].trim();
   const lon1= row[9].trim();
-  const ICES= row[6].trim();
+  
    
   const countryLower = country.toLowerCase();
   // Filter out unchecked methods
@@ -211,7 +212,7 @@ if (method.toLowerCase() === "gov") {
 marker.addTo(stationLayer);
 
   marker.bindPopup(
-    `<b>Station:</b> ${station}, ICES:</b> ${ices}<br>
+    `<b>Station:</b> ${station}, ${ICES}<br>
      <b>Method:</b> ${method}<br>
      <b>Status:</b> ${status}<br>
      <b>Lon:</b> ${lon}, ${lon1}<br>
