@@ -79,24 +79,43 @@ function drawICESGrid() {
 
 drawICESGrid();
 
-function getRectangleCentre(rect) {
+function getRectangleCentre(rectangle) {
 
-  rect = rect.trim().toUpperCase();
+  rectangle = rectangle.trim().toUpperCase();
 
-  const m = rect.match(/^(\d{2})([A-Z])(\d)$/);
+  const match =
+    rectangle.match(/^(\d+)([A-Z])(\d+)$/);
 
-  if (!m) return null;
+  if (!match) return null;
 
-  const col = parseInt(m[1]);
-  const row = m[2];
+  const row = parseInt(match[1]);   // 37
+  const col = match[2];             // F
+  const quad = parseInt(match[3]);  // 3
 
-  // ICES rectangle longitude
-  const lon = col - 44 + 0.5;
-
-  // ICES rectangle latitude
+  // Latitude centre
   const lat =
-    (row.charCodeAt(0) - "A".charCodeAt(0))
-    * 0.5 + 36.25;
+      36 + (0.5 * row) - 0.25;
+
+// Longitude lookup
+  const lonBases = {
+    A: -40,
+    B: -36,
+    C: -32,
+    D: -28,
+    E: -24,
+    F: 0,
+    G: 4,
+    H: 8,
+    I: 12
+  };
+
+  const baseLon = lonBases[letter];
+
+  if (baseLon === undefined) return null;
+
+  const lon =
+    baseLon + quadrant + 0.5;
+      
 
   return {
     lat: lat,
