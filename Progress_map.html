@@ -8,7 +8,12 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+//CSS box
 <style>
+#map {
+  height: 100vh;
+}
+  
 .filter-box {
   background: white;
   padding: 8px;
@@ -211,93 +216,6 @@ marker.addTo(stationLayer);
 }
 
 
-
-filterControl.onAdd = function () {
-  const div = L.DomUtil.create("div", "filter-box");
-
-div.innerHTML = `
-<div class="filter-title">🌍 Countries ▼</div>
-<div class="filter-content">
-
-<label>
-  <input type="checkbox" id="filter-fr" checked> fr
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-ge" checked> ge
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-dk" checked> dk
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-sw" checked> sw
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-no" checked> no
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-sc" checked> sc
-</label><br>
-
-<label>
-  <input type="checkbox" id="filter-nl" checked> nl
-</label>
-
-</div>
-`;
-
- div.querySelector(".filter-title")
-  .addEventListener("click", function(evt) {
-
-    evt.stopPropagation();
-
-    div.classList.toggle("expanded");
-
-});
-  return div;
-};
-
-filterControl.addTo(map);
-
- 
-
-vesselControl.onAdd = function () {
-  const div = L.DomUtil.create("div", "filter-box");
-
-  div.innerHTML = `
-  <div class="filter-title">🚢 Vessels ▼</div>
-  <div class="filter-content">
-  `;
-
-  Object.keys(VESSELS).forEach(mmsi => {
-    div.innerHTML += `
-      <label>
-        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
-        ${VESSELS[mmsi].name}
-      </label><br>
-    `;
-  });
-  div.innerHTML += `</div>`;
-
- div.querySelector(".filter-title")
-  .addEventListener("click", function(evt) {
-
-    evt.stopPropagation();
-
-    div.classList.toggle("expanded");
-
-});
-
-  return div;
-};
-
-vesselControl.addTo(map);
-
-  
 function drawICESGrid() {
   const latStart = 48;
   const latEnd = 62;
@@ -410,20 +328,22 @@ loadStations();
   
 document.addEventListener("change", function (e) {
 
-  Object.values(window.vesselTracks)
-    .forEach(track => {
+  if (e.target.id === "showTracks") {
 
-      if (!track.line) return;
+    Object.values(window.vesselTracks)
+      .forEach(track => {
 
-      if (e.target.checked) {
-        map.addLayer(track.line);
-      } else {
-        map.removeLayer(track.line);
-      }
+        if (!track.line) return;
 
-    });
+        if (e.target.checked) {
+          map.addLayer(track.line);
+        } else {
+          map.removeLayer(track.line);
+        }
 
-}
+      });
+
+  }
   if (e.target.id === "filter-fr") {
     activeCountries.fr = e.target.checked;
     loadStations();
