@@ -119,26 +119,38 @@ async function loadICESValues() {
 
     const data = rows.slice(1);
 
-    data.forEach(row => {
+data.forEach(row => {
 
-     const rectangle = row[13]?.trim();
-     const value = row[14]?.trim();
+  const rectangle = row[13]?.trim(); // column N
+  const value = row[14]?.trim();     // column O
+  // use row[15] if value is actually in column P
 
-     const centre = getRectangleCentre(rectangle);
-     const centre = icesRectangles[rectangle];
+  if (!rectangle || !value) return;
 
-if (!centre) return;
+  const centre = getRectangleCentre(rectangle);
 
-L.marker(
-  [centre.lat, centre.lon],
-  {
-    icon: L.divIcon({
-      className: "value-label",
-      html: `<b>${value}</b>`
-    })
-  }
-).addTo(map);
-    });
+  if (!centre) return;
+
+  L.marker(
+    [centre.lat, centre.lon],
+    {
+      icon: L.divIcon({
+        className: "value-label",
+        html: value
+      })
+    }
+  ).addTo(map);
+
+});
+
+function getRectangleCentre(rectangle) {
+
+  return {
+    lat: 56,
+    lon: 3
+  };
+
+}
 
   } catch(err) {
 
