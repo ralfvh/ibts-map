@@ -228,6 +228,47 @@ marker.addTo(stationLayer);
 }
 
 
+const fishControl = L.control({
+  position: "topleft"
+});
+
+fishControl.onAdd = function () {
+
+  const div = L.DomUtil.create(
+  "div",
+  "leaflet-bar leaflet-control"
+);
+
+ div.innerHTML = `
+  <a
+    href="https://ralfvh.github.io/ibts-map/Progress_MIK.html"
+    target="_blank"
+    title="Fish map"
+    style="
+      width:auto;
+      min-width:60px;
+      padding:0 10px;
+      text-decoration:none;
+      font-weight:bold;
+      display:block;
+      line-height:30px;
+      text-align:center;
+      color:black;
+      background:white;
+    ">
+    🐟 Fish
+  </a>
+`;
+
+  L.DomEvent.disableClickPropagation(div);
+
+  return div;
+};
+
+fishControl.addTo(map);
+
+
+ 
 function drawICESGrid() {
   const latStart = 48;
   const latEnd = 62;
