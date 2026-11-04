@@ -57,25 +57,31 @@ const fishControl = L.control({
 
 fishControl.onAdd = function () {
 
-  const div = L.DomUtil.create("div");
+  const div = L.DomUtil.create(
+  "div",
+  "leaflet-bar leaflet-control"
+);
 
-  div.innerHTML = `
-    <a
-      href="https://ralfvh.github.io/ibts-map/Progress_map.html"
-      target="_blank"
-      style="
-        background:white;
-        padding:8px 12px;
-        border:1px solid #999;
-        border-radius:4px;
-        text-decoration:none;
-        color:black;
-        font-weight:bold;
-        display:block;
-      ">
-      🐟 Fish
-    </a>
-  `;
+ div.innerHTML = `
+  <a
+    href="https://ralfvh.github.io/ibts-map/Progress_map.html"
+    target="_blank"
+    title="Fish map"
+    style="
+      width:auto;
+      min-width:60px;
+      padding:0 10px;
+      text-decoration:none;
+      font-weight:bold;
+      display:block;
+      line-height:30px;
+      text-align:center;
+      color:black;
+      background:white;
+    ">
+    🐟 Fish
+  </a>
+`;
 
   L.DomEvent.disableClickPropagation(div);
 
