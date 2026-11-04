@@ -17,6 +17,20 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     height: 100vh;
 }
 
+const valueLayer = L.layerGroup().addTo(map);
+
+function getFontSize() {
+
+  const zoom = map.getZoom();
+
+  if (zoom <= 5) return 8;
+  if (zoom <= 6) return 10;
+  if (zoom <= 7) return 12;
+  if (zoom <= 8) return 14;
+
+  return 16;
+}
+
 .value-label {
     font-size: 14px;
     font-weight: bold;
@@ -33,22 +47,6 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <body>
 
 <div id="map"></div>
-<a href="https://ralfvh.github.io/ibts-map/Progress_map.html"
-   target="_blank"
-   style="
-     position:absolute;
-     top:10px;
-     left:10px;
-     z-index:1000;
-     background:white;
-     padding:8px 12px;
-     border:1px solid #666;
-     border-radius:4px;
-     text-decoration:none;
-     color:black;
-     font-weight:bold;">
-   🐟 Fish
-</a>
 
 <script>
 
@@ -215,16 +213,19 @@ const textColor =
 L.marker(
   [centre.lat, centre.lon],
   {
-    icon: L.divIcon({
-      className: "value-label",
-      html: `
-        <span style="
-          color:${textColor};
-          font-weight:bold;
-        ">
-          ${value}
-        </span>
-      `
+    icon: L.divIcon(...)
+  }
+).addTo(valueLayer);
+
+html: `
+  <span style="
+    color:${textColor};
+    font-weight:bold;
+    font-size:${getFontSize()}px;
+  ">
+    ${value}
+  </span>
+`
     })
   }
 ).addTo(map);
@@ -239,7 +240,13 @@ L.marker(
   }
 
 }
-loadICESValues();
+map.on("zoomend", () => {
+
+  valueLayer.clearLayers();
+
+  loadICESValues();
+
+});
 
 </script>
 
