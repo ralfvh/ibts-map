@@ -121,11 +121,8 @@ async function loadICESValues() {
 
     data.forEach(row => {
 
-     const rectangle = row[14]?.trim();
-const value = row[15]?.trim();
-
-console.log("Rectangle:", rectangle);
-console.log("Value:", value);
+     const rectangle = row[13]?.trim();
+     const value = row[14]?.trim();
 
      const centre = icesRectangles[rectangle];
 
