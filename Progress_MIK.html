@@ -2,15 +2,17 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>MIK progress map</title>
+<title>MIK Progress</title>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
+
 #map {
     height: 100vh;
 }
@@ -20,16 +22,166 @@
     font-weight: bold;
     color: black;
     text-align: center;
-    background: rgba(255,255,255,0.7);
-    padding: 2px;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 4px;
     border-radius: 3px;
 }
+
 </style>
 </head>
 
 <body>
 
 <div id="map"></div>
+
+<script>
+
+const csvUrl =
+"https://docs.google.com/spreadsheets/d/1RGcPPXybYzVNQCwyK2_uOaodrWjwalecxCsRLqBiuE8/export?format=csv";
+
+const map = L.map('map', {
+    zoomControl: false
+}).setView([56.5, 3.0], 6);
+
+L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {
+    maxZoom: 12,
+    attribution: '&copy; OpenStreetMap contributors'
+  }
+).addTo(map);
+
+function drawICESGrid() {
+
+  const latStart = 48;
+  const latEnd = 62;
+  const lonStart = -4;
+  const lonEnd = 12;
+
+  for (let lat = latStart; lat < latEnd; lat += 0.5) {
+
+    for (let lon = lonStart; lon < lonEnd; lon += 1) {
+
+      L.rectangle(
+        [
+          [lat, lon],
+          [lat + 0.5, lon + 1]
+        ],
+        {
+          color: '#888',
+          weight: 0.5,
+          fill: false
+        }
+      ).addTo(map);
+    }
+  }
+}
+
+drawICESGrid();
+
+function getRectangleCentre(rectName) {
+
+  // EXAMPLE:
+  // 40F1
+  // 40F2
+  // 41F3
+
+  const match = rectName.match(/^(\d+)([A-Z])(\d+)$/);
+
+  if (!match) return null;
+
+  const number = parseInt(match[1]);
+  const letter = match[2];
+  const quadrant = parseInt(match[3]);
+
+  // Approximate conversion
+  const lon = number - 44;
+
+  const lat =
+      48 +
+      (letter.charCodeAt(0) - "A".charCodeAt(0)) * 0.5;
+
+  return {
+      lat: lat + 0.25,
+      lon: lon + 0.5
+  };
+}
+
+const icesRectangles = {};
+
+for (let lat = 48; lat < 62; lat += 0.5) {
+
+  for (let lon = -4; lon < 12; lon += 1) {
+
+    const rect = calculateICESName(lat, lon);
+
+    icesRectangles[rect] = {
+      lat: lat + 0.25,
+      lon: lon + 0.5
+    };
+
+    L.rectangle(
+      [
+        [lat, lon],
+        [lat + 0.5, lon + 1]
+      ],
+      {
+        color: "#888",
+        weight: 0.5,
+        fill: false
+      }
+    ).addTo(map);
+
+  }
+}
+      
+      
+async function loadICESValues() {
+
+  try {
+
+    const response = await fetch(
+      csvUrl + "&_=" + Date.now()
+    );
+
+    const text = await response.text();
+
+    const rows = text.trim()
+      .split("\n")
+      .map(r => r.split(","));
+
+    const data = rows.slice(1);
+
+    data.forEach(row => {
+
+      const rectangle = row[14]?.trim(); // Column O
+      const value = row[15]?.trim();     // Column P
+
+     const centre = icesRectangles[rectangle];
+
+if (!centre) return;
+
+L.marker(
+  [centre.lat, centre.lon],
+  {
+    icon: L.divIcon({
+      className: "value-label",
+      html: `<b>${value}</b>`
+    })
+  }
+).addTo(map);
+    });
+
+  } catch(err) {
+
+    console.error(err);
+
+  }
+
+}
+loadValues();
+
+</script>
 
 </body>
 </html>
