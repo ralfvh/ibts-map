@@ -130,9 +130,11 @@ data.forEach(row => {
 
   if (!rectangle || !value) return;
 
-  const centre = getRectangleCentre(rectangle);
+const centre = getRectangleCentre(rectangle);
 
-  if (!centre) return;
+console.log(rectangle, centre);
+
+if (!centre) return;
 
   L.marker(
     [centre.lat, centre.lon],
