@@ -9,41 +9,35 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
- #map {
-  height: 100vh;
-}
-
 .filter-box {
   background: white;
   padding: 8px;
   border: 1px solid #ccc;
+  border-radius: 4px;
   max-width: 220px;
 }
 
 .filter-title {
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
   user-select: none;
 }
 
 .filter-content {
+  display: none;
+}
+
+.filter-box.expanded .filter-content {
   display: block;
 }
 
-@media (max-width: 768px) {
+@media (max-width:768px) {
 
   .filter-box {
-    max-width: 160px;
+    max-width: 180px;
     font-size: 12px;
   }
 
-  .filter-content {
-    display: none;
-  }
-
-  .filter-box.expanded .filter-content {
-    display: block;
-  }
 }
 
 
@@ -57,8 +51,20 @@
 // ------------------------------------------------------------
 // 1. CONFIGURATION
 // ------------------------------------------------------------
-
-
+  const VESSELS = {
+  244033000: { name: "RV Tridens", color: "blue" },
+  234973000: { name: "RV Scotia", color: "red" },
+  265009000: { name: "RV Svea", color: "green" },
+  227297000: { name: "RV Thalassa", color: "purple" },
+  219384000: { name: "RV Dana", color: "orange" },
+  211215500: { name: "RV Walther Herwig", color: "black" },
+  257105000: { name: "G.O. Sars", color: "brown" }
+};
+window.visibleVessels = {};
+Object.keys(VESSELS).forEach(
+  m => window.visibleVessels[m] = true
+);
+ 
 let activeCountries = {
   fr: true,
   nl: true,
@@ -204,7 +210,7 @@ marker.addTo(stationLayer);
   }
 }
 
-const filterControl = L.control({ position: "bottomright" });
+
 
 filterControl.onAdd = function () {
   const div = L.DomUtil.create("div", "filter-box");
@@ -256,6 +262,41 @@ div.innerHTML = `
 };
 
 filterControl.addTo(map);
+
+ 
+
+vesselControl.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-box");
+
+  div.innerHTML = `
+  <div class="filter-title">🚢 Vessels ▼</div>
+  <div class="filter-content">
+  `;
+
+  Object.keys(VESSELS).forEach(mmsi => {
+    div.innerHTML += `
+      <label>
+        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
+        ${VESSELS[mmsi].name}
+      </label><br>
+    `;
+  });
+  div.innerHTML += `</div>`;
+
+ div.querySelector(".filter-title")
+  .addEventListener("click", function(evt) {
+
+    evt.stopPropagation();
+
+    div.classList.toggle("expanded");
+
+});
+
+  return div;
+};
+
+vesselControl.addTo(map);
+
   
 function drawICESGrid() {
   const latStart = 48;
@@ -281,8 +322,87 @@ function drawICESGrid() {
 }
 
 drawICESGrid();
- 
-  
+
+ const filterControl = L.control({
+  position: "topright"
+});
+
+filterControl.onAdd = function () {
+
+  const div = L.DomUtil.create(
+    "div",
+    "filter-box"
+  );
+
+  div.innerHTML = `
+    <div class="filter-title">
+      ☰ Filters
+    </div>
+
+    <div class="filter-content">
+
+      <b>Countries</b><br>
+
+      <label><input type="checkbox" id="filter-fr" checked> FR</label><br>
+      <label><input type="checkbox" id="filter-ge" checked> GE</label><br>
+      <label><input type="checkbox" id="filter-dk" checked> DK</label><br>
+      <label><input type="checkbox" id="filter-sw" checked> SW</label><br>
+      <label><input type="checkbox" id="filter-no" checked> NO</label><br>
+      <label><input type="checkbox" id="filter-sc" checked> SC</label><br>
+      <label><input type="checkbox" id="filter-nl" checked> NL</label>
+
+      <hr>
+
+      <b>Vessels</b><br>
+
+      ${Object.keys(VESSELS).map(mmsi => `
+        <label>
+          <input
+            type="checkbox"
+            class="vessel-toggle"
+            value="${mmsi}"
+            checked
+          >
+          ${VESSELS[mmsi].name}
+        </label><br>
+      `).join("")}
+
+      <hr>
+
+      <label>
+        <input
+          type="checkbox"
+          id="showTracks"
+          checked
+        >
+        Show AIS Tracks
+      </label>
+
+    </div>
+  `;
+
+  if (window.innerWidth > 768) {
+    div.classList.add("expanded");
+  }
+
+  div.querySelector(".filter-title")
+     .addEventListener("click", function(e) {
+
+       e.stopPropagation();
+
+       div.classList.toggle(
+         "expanded"
+       );
+
+     });
+
+  L.DomEvent.disableClickPropagation(div);
+
+  return div;
+};
+
+filterControl.addTo(map);
+   
   
 // Initial load
 loadStations();
@@ -290,6 +410,20 @@ loadStations();
   
 document.addEventListener("change", function (e) {
 
+  Object.values(window.vesselTracks)
+    .forEach(track => {
+
+      if (!track.line) return;
+
+      if (e.target.checked) {
+        map.addLayer(track.line);
+      } else {
+        map.removeLayer(track.line);
+      }
+
+    });
+
+}
   if (e.target.id === "filter-fr") {
     activeCountries.fr = e.target.checked;
     loadStations();
@@ -327,55 +461,11 @@ document.addEventListener("change", function (e) {
   
 });
 
+//AIS block starts
 function startAISStream() {
-  const VESSELS = {
-  244033000: { name: "RV Tridens", color: "blue" },
-  234973000: { name: "RV Scotia", color: "red" },
-  265009000: { name: "RV Svea", color: "green" },
-  227297000: { name: "RV Thalassa", color: "purple" },
-  219384000: { name: "RV Dana", color: "orange" },
-  211215500: { name: "RV Walther Herwig", color: "black" },
-  257105000: { name: "G.O. Sars", color: "brown" }
-};
 
-  const vesselControl = L.control({ position: "topright" });
 
-vesselControl.onAdd = function () {
-  const div = L.DomUtil.create("div", "filter-box");
-
-  div.innerHTML = `
-  <div class="filter-title">🚢 Vessels ▼</div>
-  <div class="filter-content">
-  `;
-
-  Object.keys(VESSELS).forEach(mmsi => {
-    div.innerHTML += `
-      <label>
-        <input type="checkbox" class="vessel-toggle" value="${mmsi}" checked>
-        ${VESSELS[mmsi].name}
-      </label><br>
-    `;
-  });
-  div.innerHTML += `</div>`;
-
- div.querySelector(".filter-title")
-  .addEventListener("click", function(evt) {
-
-    evt.stopPropagation();
-
-    div.classList.toggle("expanded");
-
-});
-
-  return div;
-};
-
-vesselControl.addTo(map);
-
-window.visibleVessels = {};
-Object.keys(VESSELS).forEach(m => window.visibleVessels[m] = true);
-
-document.addEventListener("change", function (e) {
+ document.addEventListener("change", function (e) {
   if (e.target.classList.contains("vessel-toggle")) {
     const mmsi = e.target.value;
     window.visibleVessels[mmsi] = e.target.checked;
@@ -522,7 +612,8 @@ window.addEventListener("load", () => {
   }
 
 });
-  
+
+//AI block starting 
 startAISStream();
 
 // Auto-refresh every 40 seconds
