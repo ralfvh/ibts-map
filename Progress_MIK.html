@@ -80,12 +80,6 @@ function drawICESGrid() {
 drawICESGrid();
 
 function getRectangleCentre(rectName) {
-
-  // EXAMPLE:
-  // 40F1
-  // 40F2
-  // 41F3
-
   const match = rectName.match(/^(\d+)([A-Z])(\d+)$/);
 
   if (!match) return null;
