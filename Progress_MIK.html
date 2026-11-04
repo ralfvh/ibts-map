@@ -22,7 +22,7 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     font-weight: bold;
     color: black;
     text-align: center;
-    background: rgba(255,255,255,0.8);
+    background: transparent;
     padding: 2px 4px;
     border-radius: 3px;
 }
@@ -154,15 +154,25 @@ console.log(rectangle, centre);
 
 if (!centre) return;
 
-  L.marker(
-    [centre.lat, centre.lon],
-    {
-      icon: L.divIcon({
-        className: "value-label",
-        html: value
-      })
-    }
-  ).addTo(map);
+const textColor =
+  parseFloat(value) <= 2 ? "red" : "black";
+
+L.marker(
+  [centre.lat, centre.lon],
+  {
+    icon: L.divIcon({
+      className: "value-label",
+      html: `
+        <span style="
+          color:${textColor};
+          font-weight:bold;
+        ">
+          ${value}
+        </span>
+      `
+    })
+  }
+).addTo(map);
 
 });
 
