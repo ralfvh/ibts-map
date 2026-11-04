@@ -15,33 +15,39 @@
   
 .filter-box {
   background: white;
-  padding: 8px;
+  padding: 6px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  max-width: 220px;
+  border-radius: 2px;
+  max-width: 180px;
+}
+ 
+.filter-content {
+  max-height: 40vh;
+  overflow-y: auto;
+} 
+
+ .filter-box.expanded .filter-content {
+  display: block;
 }
 
+ @media (max-width:768px) {
+
+  .filter-box {
+   max-height: 50vh;
+  }
+ 
 .filter-title {
   font-weight: bold;
   cursor: pointer;
   user-select: none;
 }
 
-.filter-content {
-  display: none;
-}
-
-.filter-box.expanded .filter-content {
-  display: block;
-}
-
-@media (max-width:768px) {
-
-  .filter-box {
-    max-width: 180px;
-    font-size: 12px;
+  .filter-content {
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
-
 }
 
 
