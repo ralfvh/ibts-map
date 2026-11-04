@@ -79,25 +79,28 @@ function drawICESGrid() {
 
 drawICESGrid();
 
-function getRectangleCentre(rectName) {
-  const match = rectName.match(/^(\d+)([A-Z])(\d+)$/);
+function getRectangleCentre(rect) {
 
-  if (!match) return null;
+  rect = rect.trim().toUpperCase();
 
-  const number = parseInt(match[1]);
-  const letter = match[2];
-  const quadrant = parseInt(match[3]);
+  const m = rect.match(/^(\d{2})([A-Z])(\d)$/);
 
-  // Approximate conversion
-  const lon = number - 44;
+  if (!m) return null;
 
+  const col = parseInt(m[1]);
+  const row = m[2];
+
+  // ICES rectangle longitude
+  const lon = col - 44 + 0.5;
+
+  // ICES rectangle latitude
   const lat =
-      48 +
-      (letter.charCodeAt(0) - "A".charCodeAt(0)) * 0.5;
+    (row.charCodeAt(0) - "A".charCodeAt(0))
+    * 0.5 + 36.25;
 
   return {
-      lat: lat + 0.25,
-      lon: lon + 0.5
+    lat: lat,
+    lon: lon
   };
 }
 
