@@ -162,7 +162,7 @@ async function loadStations() {
 if (method.toLowerCase() === "gov") {
   // Circle (default)
   marker = L.circleMarker([lat, lon], {
-    radius: 5,
+    radius: map.getZoom() < 7 ? 1 : 5,
     color: color,
     fillColor: color,
     fillOpacity: 0.4
