@@ -124,6 +124,7 @@ async function loadICESValues() {
      const rectangle = row[13]?.trim();
      const value = row[14]?.trim();
 
+     const centre = getRectangleCentre(rectangle);
      const centre = icesRectangles[rectangle];
 
 if (!centre) return;
